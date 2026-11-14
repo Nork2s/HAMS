@@ -11,7 +11,7 @@ fn init_bone_data() -> (String, String) {
     if Path::new("./Astronauts/example/boneDensityData.json").exists() {
             AstronautDataFile = fs::read_to_string("./Astronauts/example/boneDensityData.json").unwrap();
         } else {
-            AstronautDataFile = fs::read_to_string("./Astronauts/example/originalBoneDensityData.json").expect("No");
+            AstronautDataFile = fs::read_to_string("./Astronauts/example/originalBoneDensityData.json").expect("ERROR IN EXAMPLE BONE DENSITY!");
         };
     
     return (boneDensityDataFile, AstronautDataFile)
@@ -19,9 +19,9 @@ fn init_bone_data() -> (String, String) {
 
 fn calculate_bone_density() {
     let (boneDensityData, AstronautDataFile) = init_bone_data();
-    let BoneJSON: serde_json::Value = serde_json::from_str(&boneDensityData).expect("Didnt Work");
+    let BoneJSON: serde_json::Value = serde_json::from_str(&boneDensityData).unwrap();
 
-    let AstronautDataJSON: serde_json::Value = serde_json::from_str(&AstronautDataFile).expect("Didnt Work");
+    let AstronautDataJSON: serde_json::Value = serde_json::from_str(&AstronautDataFile).unwrap();
 
     let AstronautDataValues = AstronautDataJSON.as_object().unwrap();
     let BoneValues = BoneJSON.as_object().unwrap();
