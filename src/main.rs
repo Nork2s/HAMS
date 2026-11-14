@@ -1,4 +1,7 @@
 use std::fs;
+use std::iter::Skip;
+use std::os::linux::raw::stat;
+use std::time::SystemTime;
 use std::path::Path;
 
 fn init_bone_data() -> (String, String) {
@@ -15,6 +18,11 @@ fn init_bone_data() -> (String, String) {
         };
     
     return (boneDensityDataFile, AstronautDataFile)
+}
+
+fn init_statistics() -> String {
+    let result = fs::read_to_string("./Astronauts/example/statistics.json");
+    return result.unwrap()
 }
 
 fn calculate_bone_density() {
@@ -48,14 +56,32 @@ fn calculate_counter_meassures() {
 }
 
 fn main() {
-    if Path::new("./Astronauts/example/boneDensityData.json").exists(){
-        let _ = fs::remove_file("./Astronauts/example/boneDensityData.json");
-    }
-    let daysInSpace = fs::read_to_string("./Astronauts/example/days.txt");
-    let daysInInt :i32 = daysInSpace.unwrap().to_string().parse::<i32>().unwrap();
-    let monthsInSpace: i32 = daysInInt / 30;
+    let mut secs = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
     
-    for _n in 0..monthsInSpace {
-        calculate_bone_density()
+
+    while true {
+        if secs >= SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() {
+            continue;
+        }
+
+        let statsFile = init_statistics();
+        let mut stats: serde_json::Value = serde_json::from_str(&statsFile).unwrap();
+
+        secs = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+        if Path::new("./Astronauts/example/boneDensityData.json").exists(){
+            let _ = fs::remove_file("./Astronauts/example/boneDensityData.json");
+        }
+
+        
+        let daysInSpace = stats["HoursInMicroGravity"].as_i64();
+        let daysInInt :i32 = daysInSpace.unwrap().to_string().parse::<i32>().unwrap();
+        let monthsInSpace: i32 = daysInInt / 30;
+        
+        stats["LastUpdate"] = serde_json::json!(secs);
+        let json_string = serde_json::to_string_pretty(&stats).expect("Error");
+        fs::write("./Astronauts/example/statistics.json",json_string).expect("error");
+        for _n in 0..monthsInSpace {
+            calculate_bone_density()
+        }
     }
 }
