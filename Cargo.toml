@@ -1,0 +1,8 @@
+[package]
+name = "HAMS"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = {version = "1.0.48", features = ["preserve_order"]}

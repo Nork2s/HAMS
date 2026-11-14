@@ -1,0 +1,11 @@
+{
+    "boneGainInSkullPerMonth" : 0.006,
+    "boneGainInThoraxAndUpperLimbsPerMonth" : 0.001,
+    "boneLossInLowerVertebraePerMonth" : -0.011,
+    "boneLossInHips" : -0.014,
+    "boneLossInHipsJoint" : -0.012,
+    "boneLossInHighLeg" : -0.016,
+    "boneLossInLeftLeg" : -0.013,
+    "boneLossInRightLeg" : -0.013,
+    "boneLossInFoot" : -0.015
+}
