@@ -3,7 +3,7 @@ use std::path::Path;
 
 fn init_bone_data() -> (String, String) {
     
-    let boneDensityDataFile = fs::read_to_string("./boneLossData/data.json") //https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-030-bone-loss.pdf
+    let boneDensityDataFile = fs::read_to_string("./data/bonedata.json") //https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-030-bone-loss.pdf
         .expect("No u dont");
 
     let AstronautDataFile;//https://www.cdc.gov/nchs/data/series/sr_11/sr11_253.pdf
@@ -49,9 +49,9 @@ fn calculate_counter_meassures() {
 
 fn main() {
     
-    let daysInSpace = 365;
+    let daysInSpace = fs:read_to_string("./Astronauts/example/days.txt");
     let monthsInSpace = daysInSpace/30;
-    
+    let _ = fs::remove_file("./Astronauts/example/boneDensityData.json");
     for _n in 0..monthsInSpace {
         calculate_bone_density()
     }
