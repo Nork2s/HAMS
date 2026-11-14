@@ -48,10 +48,13 @@ fn calculate_counter_meassures() {
 }
 
 fn main() {
+    if Path::new("./Astronauts/example/boneDensityData.json").exists(){
+        let _ = fs::remove_file("./Astronauts/example/boneDensityData.json");
+    }
+    let daysInSpace = fs::read_to_string("./Astronauts/example/days.txt");
+    let daysInInt :i32 = daysInSpace.unwrap().to_string().parse::<i32>().unwrap();
+    let monthsInSpace: i32 = daysInInt / 30;
     
-    let daysInSpace = fs:read_to_string("./Astronauts/example/days.txt");
-    let monthsInSpace = daysInSpace/30;
-    let _ = fs::remove_file("./Astronauts/example/boneDensityData.json");
     for _n in 0..monthsInSpace {
         calculate_bone_density()
     }
