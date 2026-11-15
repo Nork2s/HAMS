@@ -1,8 +1,12 @@
 use std::fs;
 use std::iter::Skip;
 use std::os::linux::raw::stat;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 use std::path::Path;
+
+
+use slint::{Timer, TimerMode};
+use slint::platform::WindowEvent::CloseRequested;
 
 fn init_bone_data() -> (String, String) {
     
@@ -55,15 +59,27 @@ fn calculate_counter_meassures() {
     }
 }
 
+slint::slint!{
+    export component HelloWorld inherits Window {
+        callback hello;
+        Text {
+            text: "hello world";
+            color: green;
+        }
+        
+    }
+}
+
 fn main() {
     let mut secs = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
-    
+    let window = HelloWorld::new().unwrap();
 
-    while true {
+    let timer = Timer::default();
+
+    timer.start(TimerMode::Repeated, Duration::from_millis(16), move || {
         if secs >= SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() {
-            continue;
+            return;
         }
-
         let statsFile = init_statistics();
         let mut stats: serde_json::Value = serde_json::from_str(&statsFile).unwrap();
 
@@ -72,16 +88,22 @@ fn main() {
             let _ = fs::remove_file("./Astronauts/example/boneDensityData.json");
         }
 
-        
+            
         let daysInSpace = stats["HoursInMicroGravity"].as_i64();
         let daysInInt :i32 = daysInSpace.unwrap().to_string().parse::<i32>().unwrap();
         let monthsInSpace: i32 = daysInInt / 30;
-        
+            
         stats["LastUpdate"] = serde_json::json!(secs);
         let json_string = serde_json::to_string_pretty(&stats).expect("Error");
         fs::write("./Astronauts/example/statistics.json",json_string).expect("error");
+
         for _n in 0..monthsInSpace {
             calculate_bone_density()
         }
-    }
+    });
+
+    window.window().on_close_requested(move || {
+        return slint::CloseRequestResponse::HideWindow;
+    });
+    window.run().unwrap();
 }
