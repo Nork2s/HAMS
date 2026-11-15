@@ -1,3 +1,4 @@
+use std::ffi::os_str::Display;
 use std::fs;
 use std::iter::Skip;
 use std::os::linux::raw::stat;
@@ -5,7 +6,7 @@ use std::time::{Duration, SystemTime};
 use std::path::Path;
 
 
-use slint::{Timer, TimerMode};
+use slint::{SharedString, Timer, TimerMode};
 use slint::platform::WindowEvent::CloseRequested;
 
 fn init_bone_data() -> (String, String) {
@@ -62,8 +63,11 @@ fn calculate_counter_meassures() {
 slint::slint!{
     export component HelloWorld inherits Window {
         callback hello;
+        in-out property <string> display_text: "HelloWorld";
+        height: 200px;
+        width: 200px;
         Text {
-            text: "hello world";
+            text: display_text;
             color: green;
         }
         
@@ -73,7 +77,7 @@ slint::slint!{
 fn main() {
     let mut secs = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
     let window = HelloWorld::new().unwrap();
-
+    let window_weak = window.as_weak();
     let timer = Timer::default();
 
     timer.start(TimerMode::Repeated, Duration::from_millis(16), move || {
@@ -90,6 +94,11 @@ fn main() {
 
             
         let daysInSpace = stats["HoursInMicroGravity"].as_i64();
+
+        if let Some(window) = window_weak.upgrade() {
+            window.set_display_text(daysInSpace.unwrap().to_string().into());
+        }
+
         let daysInInt :i32 = daysInSpace.unwrap().to_string().parse::<i32>().unwrap();
         let monthsInSpace: i32 = daysInInt / 30;
             
@@ -105,5 +114,6 @@ fn main() {
     window.window().on_close_requested(move || {
         return slint::CloseRequestResponse::HideWindow;
     });
+
     window.run().unwrap();
 }
